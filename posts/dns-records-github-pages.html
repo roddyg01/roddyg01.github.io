@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DNS Records and Other Things They Don't Teach You | cyberoddy</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            background: #1a1a1a;
+            color: #d4c5a0;
+            font-family: Helvetica, Arial, sans-serif;
+            line-height: 1.6;
+            padding: 20px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        header {
+            border-bottom: 2px solid #d4c5a0;
+            padding-bottom: 20px;
+            margin-bottom: 40px;
+        }
+        
+        h1 {
+            font-size: 2em;
+            font-weight: normal;
+            margin-bottom: 10px;
+        }
+        
+        .meta {
+            opacity: 0.7;
+            font-size: 0.95em;
+        }
+        
+        nav {
+            margin: 30px 0;
+        }
+        
+        nav a {
+            color: #d4c5a0;
+            text-decoration: none;
+            margin-right: 20px;
+            border: 1px solid #d4c5a0;
+            padding: 5px 15px;
+            display: inline-block;
+            transition: all 0.2s;
+        }
+        
+        nav a:hover {
+            background: #d4c5a0;
+            color: #1a1a1a;
+        }
+        
+        .content {
+            margin: 40px 0;
+        }
+        
+        .content p {
+            margin-bottom: 20px;
+        }
+        
+        .content h2 {
+            font-weight: normal;
+            margin: 30px 0 15px 0;
+            font-size: 1.4em;
+        }
+        
+        .content code {
+            background: #0a0a0a;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+        }
+        
+        .content pre {
+            background: #0a0a0a;
+            padding: 15px;
+            overflow-x: auto;
+            margin: 20px 0;
+            border-left: 3px solid #d4c5a0;
+        }
+        
+        .content pre code {
+            background: none;
+            padding: 0;
+        }
+        
+        a {
+            color: #d4c5a0;
+            text-decoration: underline;
+        }
+        
+        footer {
+            margin-top: 60px;
+            padding-top: 20px;
+            border-top: 1px solid #d4c5a0;
+            opacity: 0.6;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>DNS Records and Other Things They Don't Teach You</h1>
+        <p class="meta">October 2, 2025</p>
+    </header>
+    
+    <nav>
+        <a href="/">home</a>
+        <a href="/posts">posts</a>
+        <a href="https://github.com/roddyg01">github</a>
+    </nav>
+    
+    <div class="content">
+        <p>Bought cyberoddy.com yesterday. Set up GitHub Pages today. Somewhere in between, I learned what A records actually do and why the @ symbol isn't just for email addresses.</p>
+
+        <p>Here's what nobody tells you when you're setting up a custom domain for the first time.</p>
+
+        <h2>The @ Symbol Mystery</h2>
+
+        <p>First confusion: what the heck is @ in DNS settings? Turns out it's shorthand for your root domain. When you put @ as the host, you're saying "this rule applies to cyberoddy.com itself, not www.cyberoddy.com or blog.cyberoddy.com."</p>
+
+        <p>So these A records:</p>
+
+        <pre><code>Type: A
+Host: @
+Value: 185.199.108.153</code></pre>
+
+        <p>Mean: "When someone types cyberoddy.com, send them to this IP address." That's it. The @ is just DNS notation for "the naked domain."</p>
+
+        <h2>A Records vs CNAME Records</h2>
+
+        <p>A records map domains to IP addresses. Simple. You're telling DNS "here's the actual server location."</p>
+
+        <p>CNAME records are aliases. Instead of pointing to an IP, they point to another domain name. My setup:</p>
+
+        <pre><code>Type: CNAME
+Host: www
+Value: roddyg01.github.io</code></pre>
+
+        <p>Translation: "When someone types www.cyberoddy.com, redirect them to roddyg01.github.io, and let GitHub handle it from there."</p>
+
+        <p>You can't use a CNAME for the root domain (@) -- that's why you need A records pointing to GitHub's IPs for the naked domain, then a CNAME for the www subdomain.</p>
+
+        <h2>Why Four A Records?</h2>
+
+        <p>GitHub gives you four IP addresses:</p>
+
+        <pre><code>185.199.108.153
+185.199.109.153
+185.199.110.153
+185.199.111.153</code></pre>
+
+        <p>It's redundancy. If one server goes down, the others handle traffic. You add all four as separate A records with the same host (@). DNS will route to whichever one responds fastest.</p>
+
+        <h2>The TXT Record for Verification</h2>
+
+        <p>GitHub makes you add a TXT record to verify you actually own the domain. It looks like this:</p>
+
+        <pre><code>Type: TXT
+Host: _github-pages-challenge-roddyg01
+Value: [some long hash]</code></pre>
+
+        <p>This is just proof of ownership. GitHub checks if you can add records to the domain's DNS. Once verified, you can delete it -- though leaving it doesn't hurt.</p>
+
+        <h2>DNS Propagation Is a Waiting Game</h2>
+
+        <p>Changed your DNS records? Cool. Now wait. Propagation takes anywhere from 15 minutes to 48 hours, but usually under an hour.</p>
+
+        <p>You can check propagation with <code>dig yourdomain.com</code> or online tools like whatsmydns.net. If it's not working immediately, that's normal. Go touch grass, come back later.</p>
+
+        <h2>SSL/HTTPS Is Automatic (Don't Pay for It)</h2>
+
+        <p>GitHub Pages gives you free SSL through Let's Encrypt. Once your domain propagates, go to repo Settings → Pages → check "Enforce HTTPS." Done.</p>
+
+        <p>Your registrar will try to upsell you on SSL certificates. Ignore it. You don't need it for GitHub Pages.</p>
+
+        <h2>What I Wish I Knew Before Starting</h2>
+
+        <p>Documentation assumes you already know what DNS does. No tutorial explained that @ is just shorthand, or why you need both A records and a CNAME, or that four A records isn't a typo.</p>
+
+        <p>The actual setup takes 10 minutes. Figuring out what the setup actually means took three hours and a lot of tab switching between Stack Overflow and GitHub docs.</p>
+
+        <p>Now it's written down. Next time I do this, or you do this, it'll take 10 minutes total.</p>
+    </div>
+    
+    <footer>
+        <p><a href="/">← back to home</a></p>
+    </footer>
+</body>
+</html>
