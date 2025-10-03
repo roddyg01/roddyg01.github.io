@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Automating dbt Documentation to Notion | cyberoddy</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            background: #1a1a1a;
+            color: #d4c5a0;
+            font-family: Helvetica, Arial, sans-serif;
+            line-height: 1.6;
+            padding: 20px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        header {
+            border-bottom: 2px solid #d4c5a0;
+            padding-bottom: 20px;
+            margin-bottom: 40px;
+        }
+        
+        h1 {
+            font-size: 2em;
+            font-weight: normal;
+            margin-bottom: 10px;
+        }
+        
+        .meta {
+            opacity: 0.7;
+            font-size: 0.95em;
+        }
+        
+        nav {
+            margin: 30px 0;
+        }
+        
+        nav a {
+            color: #d4c5a0;
+            text-decoration: none;
+            margin-right: 20px;
+            border: 1px solid #d4c5a0;
+            padding: 5px 15px;
+            display: inline-block;
+            transition: all 0.2s;
+        }
+        
+        nav a:hover {
+            background: #d4c5a0;
+            color: #1a1a1a;
+        }
+        
+        .content {
+            margin: 40px 0;
+        }
+        
+        .content p {
+            margin-bottom: 20px;
+        }
+        
+        .content h2 {
+            font-weight: normal;
+            margin: 30px 0 15px 0;
+            font-size: 1.4em;
+        }
+        
+        .content code {
+            background: #0a0a0a;
+            color: #ffffff;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+        }
+        
+        .content pre {
+            background: #0a0a0a;
+            padding: 15px;
+            overflow-x: auto;
+            margin: 20px 0;
+            border-left: 3px solid #d4c5a0;
+        }
+        
+        .content pre code {
+            background: none;
+            color: #ffffff;
+            padding: 0;
+        }
+        
+        a {
+            color: #d4c5a0;
+            text-decoration: underline;
+        }
+        
+        footer {
+            margin-top: 60px;
+            padding-top: 20px;
+            border-top: 1px solid #d4c5a0;
+            opacity: 0.6;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Automating dbt Documentation to Notion</h1>
+        <p class="meta">October 3, 2025</p>
+    </header>
+    
+    <nav>
+        <a href="/">home</a>
+        <a href="/posts">posts</a>
+        <a href="https://github.com/roddyg01">github</a>
+    </nav>
+    
+    <div class="content">
+        <p>dbt generates documentation automatically from your data models. Problem is, nobody reads it because it lives in JSON files buried in your project directory.</p>
+
+        <p>Solution: Push it to Notion where people actually look at documentation. Here's how I automated the entire pipeline using R and the Notion API.</p>
+
+        <h2>The Problem</h2>
+
+        <p>dbt creates <code>manifest.json</code> and <code>catalog.json</code> files with complete documentation -- model descriptions, column metadata, SQL code, dependencies. Everything you need. But JSON files don't make for accessible documentation.</p>
+
+        <p>Teams want documentation in Notion where they already work. Manually copying hundreds of tables and columns isn't happening. So I built an ETL pipeline to do it automatically.</p>
+
+        <h2>Setup: Notion Integration</h2>
+
+        <p>First, create a Notion integration at <code>notion.so/profile/integrations</code>. Set it as internal, give it read/write permissions for content. Copy the integration token -- you'll need it.</p>
+
+        <p>Create a Notion page where the documentation will live. Connect your integration to that page through the page settings. Notion generates a database ID for this page -- grab that too.</p>
+
+        <p>Store both in environment variables:</p>
+
+        <pre><code>SECRET_NOTION=your_integration_token
+DATABASE_PARENT_ID=your_page_id</code></pre>
+
+        <h2>Loading dbt Documentation</h2>
+
+        <p>dbt outputs two files after running <code>dbt docs generate</code>:</p>
+
+        <pre><code>manifest <- jsonlite::read_json("../target/manifest.json")
+catalog <- jsonlite::read_json("../target/catalog.json")</code></pre>
+
+        <p>Extract only models with descriptions:</p>
+
+        <pre><code>manifest_nodes <- manifest$nodes %>% 
+  keep(~.x$description != '')
+
+models <- manifest_nodes %>%
+  keep(~ .$resource_type == "model") %>%
+  enframe(name = "node_name", value = "data")</code></pre>
+
+        <p>This filters out tests, seeds, and anything without documentation. No point uploading empty records.</p>
+
+        <h2>Notion API Wrapper</h2>
+
+        <p>The Notion API requires authenticated requests with specific headers. Wrapped it in a helper function:</p>
+
+        <pre><code>make_request <- function(endpoint, method = "GET", body = NULL) {
+  Sys.sleep(0.34) # Rate limit: 3 requests/second
+  
+  url <- glue("https://api.notion.com/v1/{endpoint}")
+  
+  headers <- c(
+    "Authorization" = NOTION_TOKEN,
+    "Content-Type" = "application/json",
+    "Notion-Version" = "2022-02-22"
+  )
+  
+  response <- VERB(
+    verb = method,
+    url = url,
+    body = if (!is.null(body)) toJSON(body, auto_unbox = TRUE),
+    add_headers(headers)
+  )
+  
+  content(response, "parsed")
+}</code></pre>
+
+        <p>The <code>Sys.sleep(0.34)</code> is critical -- Notion limits to 3 requests per second. Without the delay, the script fails halfway through.</p>
+
+        <h2>Creating Notion Records</h2>
+
+        <p>Each dbt model becomes a Notion page with:</p>
+
+        <p>- Title (model name)<br>
+        - Description<br>
+        - Table of columns with data types<br>
+        - Full SQL code block</p>
+
+        <p>Building the JSON structure for Notion's API was the annoying part. Properties need specific formatting:</p>
+
+        <pre><code>make_properties_json <- function(data) {
+  glue('
+  "properties": {{
+      "Name": {{
+        "title": [{{ "text": {{ "content": "{data$name}" }} }}]
+      }},
+      "Description": {{
+        "rich_text": [{{ "text": {{ "content": "{data$description}" }} }}]
+      }} 
+    }}
+  ')
+}</code></pre>
+
+        <p>Columns get formatted as a table:</p>
+
+        <pre><code>make_table_children <- function(data) {
+  df_columns <- data$columns %>% 
+    map_df(~tibble(
+      name = .x$name,
+      data_type = .x$data_type,
+      description = .x$description
+    ))
+  
+  df_columns %>% 
+    pmap(~make_3_cell_row(..1, ..2, ..3)) %>%
+    paste(collapse = ",")
+}</code></pre>
+
+        <p>SQL code blocks need special handling for line breaks and escaping:</p>
+
+        <pre><code>make_dbt_code_block <- function(data) {
+  code_str <- data$raw_code %>% 
+    str_replace_all("\n", "\\\\n") %>%
+    str_replace_all("'", "\\'")
+  
+  glue('{{ "type": "code", "code": {{ "rich_text": [{{ 
+    "text": {{ "content": "{code_str}" }} 
+  }}], "language": "sql" }} }}')
+}</code></pre>
+
+        <h2>Avoiding Duplicates</h2>
+
+        <p>Before creating a record, check if it already exists:</p>
+
+        <pre><code>check_record_exists <- function(database_id, data) {
+  query_json <- glue('{{
+    "filter": {{
+      "property": "Name",
+      "title": {{ "equals": "{data$name}" }}
+    }}
+  }}')
+  
+  record_query_resp <- make_request(
+    endpoint = paste0("databases/", database_id, "/query"),
+    method = "POST",
+    body = query_json
+  )
+  
+  length(record_query_resp$results) > 0
+}</code></pre>
+
+        <p>Only create the record if it doesn't exist. Updates would require more logic -- for now, this prevents duplicates on reruns.</p>
+
+        <h2>Running the Pipeline</h2>
+
+        <pre><code>for (i in 1:nrow(models)) {
+  model_name <- models$node_name[i]
+  data <- models$data[[i]]
+  
+  if (!check_record_exists(DATABASE_ID, data)) {
+    create_dbt_record(DATABASE_ID, data)
+    cli_alert_success("Created: {data$name}")
+  } else {
+    cli_alert_info("Exists: {data$name}")
+  }
+}</code></pre>
+
+        <p>Run this after <code>dbt docs generate</code> and the entire data catalog syncs to Notion automatically.</p>
+
+        <h2>What Could Be Better</h2>
+
+        <p>This works but has limitations:</p>
+
+        <p>- No update logic -- records are create-only<br>
+        - No deletion of removed models<br>
+        - Doesn't use dbt tags or meta fields<br>
+        - Error handling is minimal</p>
+
+        <p>For a quick proof of concept, it does the job. Full production version would need proper state management and incremental updates.</p>
+
+        <h2>Why This Matters</h2>
+
+        <p>Documentation that nobody reads is worthless. Putting dbt docs where people actually work -- Notion, Confluence, wherever -- increases the chance someone uses it.</p>
+
+        <p>Automating this means the documentation stays current without manual updates. Run it as part of your CI/CD pipeline after dbt builds and you have a self-updating data catalog.</p>
+
+        <p>Code is available on request. Modify it for your setup.</p>
+    </div>
+    
+    <footer>
+        <p><a href="/">← back to home</a></p>
+    </footer>
+</body>
+</html>
