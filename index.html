@@ -1,10 +1,148 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Cyberoddy</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>cyberoddy</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            background: #1a1a1a;
+            color: #d4c5a0;
+            font-family: Helvetica, Arial, sans-serif;
+            line-height: 1.6;
+            padding: 20px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        header {
+            border-bottom: 2px solid #f5f5dc;
+            padding-bottom: 20px;
+            margin-bottom: 40px;
+        }
+        
+        h1 {
+            font-size: 2.5em;
+            font-weight: normal;
+            margin-bottom: 10px;
+        }
+        
+        .tagline {
+            font-size: 1.1em;
+            opacity: 0.8;
+        }
+        
+        nav {
+            margin: 30px 0;
+        }
+        
+        nav a {
+            color: #f5f5dc;
+            text-decoration: none;
+            margin-right: 20px;
+            border: 1px solid #f5f5dc;
+            padding: 5px 15px;
+            display: inline-block;
+            transition: all 0.2s;
+        }
+        
+        nav a:hover {
+            background: #f5f5dc;
+            color: #000;
+        }
+        
+        .content {
+            margin: 40px 0;
+        }
+        
+        .content p {
+            margin-bottom: 20px;
+        }
+        
+        .posts {
+            margin-top: 40px;
+        }
+        
+        .post-item {
+            border-left: 3px solid #f5f5dc;
+            padding-left: 15px;
+            margin-bottom: 25px;
+        }
+        
+        .post-item h3 {
+            font-weight: normal;
+            margin-bottom: 5px;
+        }
+        
+        .post-item .date {
+            opacity: 0.6;
+            font-size: 0.9em;
+        }
+        
+        a {
+            color: #f5f5dc;
+            text-decoration: underline;
+        }
+        
+        footer {
+            margin-top: 60px;
+            padding-top: 20px;
+            border-top: 1px solid #f5f5dc;
+            opacity: 0.6;
+        }
+        
+        .no-nonsense {
+            font-size: 0.95em;
+            opacity: 0.9;
+            margin: 30px 0;
+        }
+    </style>
 </head>
 <body>
-    <h1>Welcome to CyberOddy</h1>
-    <p>Site coming soon...</p>
+    <header>
+        <h1>cyberoddy</h1>
+        <p class="tagline">learning security, one misconfiguration at a time</p>
+    </header>
+    
+    <nav>
+        <a href="/">home</a>
+        <a href="/posts">posts</a>
+        <a href="/about">about</a>
+        <a href="https://github.com/roddyg01">github</a>
+    </nav>
+    
+    <div class="content">
+        <p>Documenting my journey through infosec, cyber, info systems management -- technical stuff, industry commentary, data deep dives, occasional hot takes.</p>
+        
+        <p>Exists because my browser bookmarks are a graveyard and my memory is unreliable. Writing things down once beats Googling them forever.</p>
+        
+        <p>College senior figuring this out in real time. If the content helps you too, we both win.</p>
+    </div>
+    
+    <div class="posts">
+        <h2>Recent Posts</h2>
+        
+        <div class="post-item">
+            <h3><a href="#">DNS Records and Other Things They Don't Teach You</a></h3>
+            <p class="date">2025-10-02</p>
+            <p>GitHub Pages, A records, and why documentation assumes you already know everything.</p>
+        </div>
+        
+        <div class="post-item">
+            <h3><a href="#">Coming Soon</a></h3>
+            <p class="date">--</p>
+            <p>Actually learning things worth writing about.</p>
+        </div>
+    </div>
+    
+    <footer>
+        <p>built with html because jekyll felt like overkill | no analytics, no cookies, no bs</p>
+    </footer>
 </body>
 </html>
