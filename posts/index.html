@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Posts | cyberoddy</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            background: #1a1a1a;
+            color: #d4c5a0;
+            font-family: Helvetica, Arial, sans-serif;
+            line-height: 1.6;
+            padding: 20px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        header {
+            border-bottom: 2px solid #d4c5a0;
+            padding-bottom: 20px;
+            margin-bottom: 40px;
+        }
+        
+        h1 {
+            font-size: 2.5em;
+            font-weight: normal;
+            margin-bottom: 10px;
+        }
+        
+        nav {
+            margin: 30px 0;
+        }
+        
+        nav a {
+            color: #d4c5a0;
+            text-decoration: none;
+            margin-right: 20px;
+            border: 1px solid #d4c5a0;
+            padding: 5px 15px;
+            display: inline-block;
+            transition: all 0.2s;
+        }
+        
+        nav a:hover {
+            background: #d4c5a0;
+            color: #1a1a1a;
+        }
+        
+        .posts {
+            margin: 40px 0;
+        }
+        
+        .post-item {
+            border-left: 3px solid #d4c5a0;
+            padding-left: 15px;
+            margin-bottom: 35px;
+        }
+        
+        .post-item h2 {
+            font-weight: normal;
+            margin-bottom: 8px;
+            font-size: 1.4em;
+        }
+        
+        .post-item h2 a {
+            color: #d4c5a0;
+            text-decoration: none;
+        }
+        
+        .post-item h2 a:hover {
+            text-decoration: underline;
+        }
+        
+        .post-item .date {
+            opacity: 0.6;
+            font-size: 0.9em;
+            margin-bottom: 8px;
+        }
+        
+        .post-item p {
+            opacity: 0.9;
+        }
+        
+        footer {
+            margin-top: 60px;
+            padding-top: 20px;
+            border-top: 1px solid #d4c5a0;
+            opacity: 0.6;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>All Posts</h1>
+    </header>
+    
+    <nav>
+        <a href="/">home</a>
+        <a href="/posts">posts</a>
+        <a href="/about.html">about</a>
+        <a href="https://github.com/roddyg01">github</a>
+    </nav>
+    
+    <div class="posts">
+        <div class="post-item">
+            <h2><a href="/posts/dns-records-github-pages.html">DNS Records and Other Things They Don't Teach You</a></h2>
+            <p class="date">October 2, 2025</p>
+            <p>GitHub Pages, A records, and why documentation assumes you already know everything.</p>
+        </div>
+        
+    </div>
+    
+    <footer>
+        <p><a href="/">← back to home</a></p>
+    </footer>
+</body>
+</html>
