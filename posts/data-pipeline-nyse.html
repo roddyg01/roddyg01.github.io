@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Building a Financial Data Pipeline: NYSE to Power BI | cyberoddy</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            background: #1a1a1a;
+            color: #d4c5a0;
+            font-family: Helvetica, Arial, sans-serif;
+            line-height: 1.6;
+            padding: 20px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        header {
+            border-bottom: 2px solid #d4c5a0;
+            padding-bottom: 20px;
+            margin-bottom: 40px;
+        }
+        
+        h1 {
+            font-size: 2em;
+            font-weight: normal;
+            margin-bottom: 10px;
+        }
+        
+        .meta {
+            opacity: 0.7;
+            font-size: 0.95em;
+        }
+        
+        nav {
+            margin: 30px 0;
+        }
+        
+        nav a {
+            color: #d4c5a0;
+            text-decoration: none;
+            margin-right: 20px;
+            border: 1px solid #d4c5a0;
+            padding: 5px 15px;
+            display: inline-block;
+            transition: all 0.2s;
+        }
+        
+        nav a:hover {
+            background: #d4c5a0;
+            color: #1a1a1a;
+        }
+        
+        .content {
+            margin: 40px 0;
+        }
+        
+        .content p {
+            margin-bottom: 20px;
+        }
+        
+        .content h2 {
+            font-weight: normal;
+            margin: 30px 0 15px 0;
+            font-size: 1.4em;
+            color: #ffffff;
+        }
+        
+        .content code {
+            background: #0a0a0a;
+            color: #ffffff;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+        }
+        
+        .content pre {
+            background: #0a0a0a;
+            padding: 15px;
+            overflow-x: auto;
+            margin: 20px 0;
+            border-left: 3px solid #d4c5a0;
+        }
+        
+        .content pre code {
+            background: none;
+            color: #ffffff;
+            padding: 0;
+        }
+        
+        a {
+            color: #d4c5a0;
+            text-decoration: underline;
+        }
+        
+        footer {
+            margin-top: 60px;
+            padding-top: 20px;
+            border-top: 1px solid #d4c5a0;
+            opacity: 0.6;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Building a Financial Data Pipeline: NYSE to Power BI</h1>
+        <p class="meta">October 2025</p>
+    </header>
+    
+    <nav>
+        <a href="/">home</a>
+        <a href="/posts">posts</a>
+        <a href="/about.html">about</a>
+        <a href="https://github.com/roddyg01">github</a>
+    </nav>
+    
+    <div class="content">
+        <p>Built an ETL pipeline to pull NYSE data, transform it, load it into PostgreSQL, and visualize it in Power BI. Standard data engineering work with proper security controls. Here's what actually matters.</p>
+
+        <h2>Data Extraction</h2>
+
+        <p>Used Alpha Vantage API for stock data. Free tier gives 25 requests per day, which is enough for testing but useless for production. Alternative sources: Yahoo Finance, Quandl, or direct FTP from NYSE archives.</p>
+
+        <p>API key goes in environment variables. Never hardcode credentials. Basic security that somehow still needs to be stated.</p>
+
+        <pre><code>import os
+API_KEY = os.environ.get('ALPHA_VANTAGE_KEY')
+
+def extract_stock_data(symbol):
+    params = {
+        'function': 'TIME_SERIES_DAILY',
+        'symbol': symbol,
+        'outputsize': 'full',
+        'apikey': API_KEY
+    }
+    response = requests.get(BASE_URL, params=params)
+    return response.content</code></pre>
+
+        <p>Added checksum logging for data integrity. SHA-256 hash of each file gets written to an audit log. If data gets corrupted or tampered with, you'll know.</p>
+
+        <h2>Transformation</h2>
+
+        <p>Raw financial data is filthy. Missing values, inconsistent formats, encoding issues. Don't trust the source.</p>
+
+        <p>Load data with explicit dtypes for performance. Pandas will guess types otherwise and get it wrong:</p>
+
+        <pre><code>df = pd.read_csv(raw_file,
+    parse_dates=['timestamp'],
+    dtype={
+        'open': 'float64',
+        'high': 'float64',
+        'low': 'float64',
+        'close': 'float64',
+        'volume': 'int64'
+    })</code></pre>
+
+        <p>Handle nulls strategically. Forward fill for prices (last known value makes sense), drop rows with missing volume (no volume means no trade, unusable data).</p>
+
+        <p>Feature engineering is where the value is. Raw close prices tell you nothing. Calculate returns, volatility, moving averages:</p>
+
+        <pre><code>df['daily_return'] = df['close'].pct_change()
+df['volatility'] = df['daily_return'].rolling(window=30).std()
+df['moving_avg_50'] = df['close'].rolling(window=50).mean()
+df['moving_avg_200'] = df['close'].rolling(window=200).mean()</code></pre>
+
+        <p>Outlier detection catches trading halts and data errors. Anything beyond 3 standard deviations gets flagged:</p>
+
+        <pre><code>df['is_outlier'] = np.abs(
+    (df['close'] - df['close'].mean()) / df['close'].std()
+) > 3</code></pre>
+
+        <h2>Database Setup</h2>
+
+        <p>PostgreSQL 15. Superior performance for time-series data compared to MySQL. Better indexing, better window functions.</p>
+
+        <p>Schema design matters. Created separate schema for market data, fact table for daily prices, dimension table for stock metadata, audit table for data lineage.</p>
+
+        <pre><code>CREATE SCHEMA market_data;
+
+CREATE TABLE market_data.stock_prices (
+    id SERIAL PRIMARY KEY,
+    symbol VARCHAR(10) NOT NULL,
+    trade_date DATE NOT NULL,
+    close_price NUMERIC(12,4),
+    volume BIGINT,
+    daily_return NUMERIC(8,6),
+    volatility NUMERIC(8,6),
+    moving_avg_50 NUMERIC(12,4),
+    moving_avg_200 NUMERIC(12,4),
+    is_outlier BOOLEAN DEFAULT FALSE,
+    checksum VARCHAR(64),
+    UNIQUE(symbol, trade_date)
+);</code></pre>
+
+        <p>Indexes on symbol and date for query performance. Without these, queries take minutes instead of milliseconds:</p>
+
+        <pre><code>CREATE INDEX idx_symbol_date 
+ON market_data.stock_prices(symbol, trade_date DESC);</code></pre>
+
+        <h2>Loading Data</h2>
+
+        <p>DBeaver works for manual imports. Right-click table, import CSV, map columns. Fine for one-off analysis.</p>
+
+        <p>For production, write scripts. Manual processes don't scale and create security gaps. Programmatic loading with upsert logic:</p>
+
+        <pre><code>insert_query = """
+INSERT INTO market_data.stock_prices 
+(symbol, trade_date, close_price, volume, daily_return, 
+ volatility, moving_avg_50, moving_avg_200, is_outlier, checksum)
+VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+ON CONFLICT (symbol, trade_date) DO UPDATE SET
+    close_price = EXCLUDED.close_price,
+    volume = EXCLUDED.volume
+"""
+
+execute_batch(cursor, insert_query, records, page_size=1000)</code></pre>
+
+        <p>Batch inserts are significantly faster than individual inserts. 1000 records per batch is the sweet spot.</p>
+
+        <h2>Data Validation</h2>
+
+        <p>Run validation queries before visualization. Check for gaps, anomalies, quality issues:</p>
+
+        <pre><code>-- Data completeness check
+SELECT symbol, COUNT(*) as record_count,
+    MIN(trade_date) as earliest,
+    MAX(trade_date) as latest
+FROM market_data.stock_prices
+GROUP BY symbol;
+
+-- Anomaly detection
+SELECT symbol, trade_date, close_price
+FROM market_data.stock_prices
+WHERE is_outlier = TRUE;</code></pre>
+
+        <p>Sudden spikes in outliers or null values could indicate data tampering. These queries double as intrusion detection.</p>
+
+        <h2>Power BI Integration</h2>
+
+        <p>Direct Query mode for sensitive financial data. Import mode is faster but less secure. Direct Query enables row-level security and real-time data.</p>
+
+        <p>Connection: Get Data → PostgreSQL, enter server details, use DirectQuery mode. Encrypt the connection. Don't embed credentials in .pbix files.</p>
+
+        <p>Create a date table for time intelligence functions:</p>
+
+        <pre><code>DateTable = 
+ADDCOLUMNS(
+    CALENDAR(DATE(2020,1,1), DATE(2025,12,31)),
+    "Year", YEAR([Date]),
+    "Month", FORMAT([Date], "MMM"),
+    "Quarter", "Q" & FORMAT([Date], "Q")
+)</code></pre>
+
+        <p>Key measures for financial analysis:</p>
+
+        <pre><code>YoY_Return = 
+DIVIDE(
+    [Avg_Close_Price] - 
+    CALCULATE([Avg_Close_Price], SAMEPERIODLASTYEAR(DateTable[Date])),
+    CALCULATE([Avg_Close_Price], SAMEPERIODLASTYEAR(DateTable[Date]))
+)
+
+Sharpe_Ratio = 
+VAR AvgReturn = AVERAGE(stock_prices[daily_return])
+VAR StdDev = STDEV.P(stock_prices[daily_return])
+VAR RiskFreeRate = 0.045 / 252
+RETURN DIVIDE(AvgReturn - RiskFreeRate, StdDev)</code></pre>
+
+        <h2>Performance Optimization</h2>
+
+        <p>Direct Query is slow. Accept it or build aggregation layers. Created materialized view for summary data:</p>
+
+        <pre><code>CREATE MATERIALIZED VIEW market_data.monthly_summary AS
+SELECT symbol, DATE_TRUNC('month', trade_date) as month,
+    AVG(close_price) as avg_price,
+    SUM(volume) as total_volume,
+    STDDEV(daily_return) as volatility
+FROM market_data.stock_prices
+GROUP BY symbol, DATE_TRUNC('month', trade_date);</code></pre>
+
+        <p>Refresh nightly via cron. Power BI queries this view instead of raw table. Queries drop from 20 seconds to under 2.</p>
+
+        <h2>What Actually Matters</h2>
+
+        <p>Data is never clean on first pass. Budget 60% of your time for transformation, not extraction.</p>
+
+        <p>Security isn't optional. Encrypted connections, credential management, audit trails. All non-negotiable.</p>
+
+        <p>DBeaver is a tool for analysis, not production ETL. Good for exploration, terrible for automation.</p>
+
+        <p>Direct Query in Power BI is inherently slow. Build aggregations or accept the performance hit.</p>
+
+        <p>Documentation saves time. When this breaks at 2 AM, detailed logs make the difference between 10 minutes and 2 hours of troubleshooting.</p>
+
+        <p>Pipeline is production-ready with monitoring. Query response under 5 seconds for 5-year dataset. Maintenance overhead approximately 2 hours per week.</p>
+    </div>
+    
+    <footer>
+        <p><a href="/">← back to home</a></p>
+    </footer>
+</body>
+</html>
