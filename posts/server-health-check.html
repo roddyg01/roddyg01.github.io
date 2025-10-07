@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple Server Health Monitor | cyberoddy</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            background: #1a1a1a;
+            color: #d4c5a0;
+            font-family: Helvetica, Arial, sans-serif;
+            line-height: 1.6;
+            padding: 20px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        header {
+            border-bottom: 2px solid #d4c5a0;
+            padding-bottom: 20px;
+            margin-bottom: 40px;
+        }
+        
+        h1 {
+            font-size: 2em;
+            font-weight: normal;
+            margin-bottom: 10px;
+        }
+        
+        .meta {
+            opacity: 0.7;
+            font-size: 0.95em;
+        }
+        
+        nav {
+            margin: 30px 0;
+        }
+        
+        nav a {
+            color: #d4c5a0;
+            text-decoration: none;
+            margin-right: 20px;
+            border: 1px solid #d4c5a0;
+            padding: 5px 15px;
+            display: inline-block;
+            transition: all 0.2s;
+        }
+        
+        nav a:hover {
+            background: #d4c5a0;
+            color: #1a1a1a;
+        }
+        
+        .content {
+            margin: 40px 0;
+        }
+        
+        .content p {
+            margin-bottom: 20px;
+        }
+        
+        .content h2 {
+            font-weight: normal;
+            margin: 30px 0 15px 0;
+            font-size: 1.4em;
+            color: #ffffff;
+        }
+        
+        .content ul {
+            margin: 15px 0 20px 30px;
+        }
+        
+        .content li {
+            margin-bottom: 8px;
+        }
+        
+        .content code {
+            background: #0a0a0a;
+            color: #ffffff;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+        }
+        
+        .content pre {
+            background: #0a0a0a;
+            padding: 15px;
+            overflow-x: auto;
+            margin: 20px 0;
+            border-left: 3px solid #d4c5a0;
+        }
+        
+        .content pre code {
+            background: none;
+            color: #ffffff;
+            padding: 0;
+        }
+        
+        a {
+            color: #d4c5a0;
+            text-decoration: underline;
+        }
+        
+        footer {
+            margin-top: 60px;
+            padding-top: 20px;
+            border-top: 1px solid #d4c5a0;
+            opacity: 0.6;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Simple Server Health Monitor</h1>
+        <p class="meta">October 7, 2025</p>
+    </header>
+    
+    <nav>
+        <a href="/">home</a>
+        <a href="/posts">posts</a>
+        <a href="/about.html">about</a>
+        <a href="https://github.com/roddyg01">github</a>
+    </nav>
+    
+    <div class="content">
+        <p>Python script that SSHs into servers and checks if anything's broken. Sends email alerts when thresholds are exceeded. Basic monitoring without enterprise overhead.</p>
+
+        <h2>What It Monitors</h2>
+
+        <p>Connects to servers via SSH and checks:</p>
+
+        <ul>
+            <li>Disk usage</li>
+            <li>CPU load</li>
+            <li>Memory usage</li>
+        </ul>
+
+        <p>Any metric over threshold triggers an email alert.</p>
+
+        <h2>Implementation</h2>
+
+        <p>The script uses Paramiko for SSH connections, runs standard Unix commands, parses output:</p>
+
+        <pre><code>def check_disk(self, host: str, username: str, key_path: str) -> Dict:
+    """Check disk usage"""
+    cmd = "df -h / | awk 'NR==2 {print $5}'"
+    result = self.ssh_execute(host, username, key_path, cmd)
+    usage = int(result.replace('%', ''))
+    
+    return {
+        'metric': 'disk',
+        'value': usage,
+        'unit': '%',
+        'status': 'CRITICAL' if usage >= self.thresholds['disk'] else 'OK'
+    }</code></pre>
+
+        <p>CPU check uses load average relative to number of cores. Single-core system at 1.0 load = 100% CPU. Four-core system at 1.0 load = 25% CPU per core:</p>
+
+        <pre><code>def check_cpu(self, host: str, username: str, key_path: str) -> Dict:
+    cmd = "echo $(cat /proc/loadavg | awk '{print $1}') $(nproc)"
+    result = self.ssh_execute(host, username, key_path, cmd)
+    load, cores = result.split()
+    cpu_percent = (float(load) / int(cores)) * 100
+    
+    return {
+        'metric': 'cpu',
+        'value': round(cpu_percent, 2),
+        'unit': '%',
+        'status': 'CRITICAL' if cpu_percent >= self.thresholds['cpu'] else 'OK'
+    }</code></pre>
+
+        <p>Memory check parses <code>free</code> output:</p>
+
+        <pre><code>def check_memory(self, host: str, username: str, key_path: str) -> Dict:
+    cmd = "free | awk 'NR==2 {printf \"%.0f\", ($3/$2)*100}'"
+    result = self.ssh_execute(host, username, key_path, cmd)
+    usage = int(result)
+    
+    return {
+        'metric': 'memory',
+        'value': usage,
+        'unit': '%',
+        'status': 'CRITICAL' if usage >= self.thresholds['memory'] else 'OK'
+    }</code></pre>
+
+        <h2>Configuration</h2>
+
+        <p>JSON config file defines servers, thresholds, email settings:</p>
+
+        <pre><code>{
+  "servers": [
+    {
+      "name": "Web Server",
+      "host": "192.168.1.100",
+      "username": "admin",
+      "key_path": "~/.ssh/id_rsa"
+    }
+  ],
+  "thresholds": {
+    "disk": 85,
+    "cpu": 80,
+    "memory": 85
+  },
+  "email": {
+    "smtp_server": "smtp.gmail.com",
+    "smtp_port": 587,
+    "from": "alerts@domain.com",
+    "to": "you@domain.com",
+    "username": "alerts@domain.com",
+    "password": "your-app-password"
+  }
+}</code></pre>
+
+        <p>Thresholds in percentages. Disk at 85% triggers alert. CPU load above 80% triggers alert. Memory usage over 85% triggers alert.</p>
+
+        <h2>Email Alerts</h2>
+
+        <p>When threshold exceeded, script sends SMTP email with details:</p>
+
+        <pre><code>def send_alert(self, server_name: str, issues: List[Dict]):
+    subject = f"[ALERT] System Health Issues on {server_name}"
+    body = f"Critical issues detected on {server_name} at {datetime.now()}:\n\n"
+    
+    for issue in issues:
+        body += f"- {issue['metric'].upper()}: {issue['value']}{issue.get('unit', '')}\n"
+    
+    msg = MIMEText(body)
+    msg['Subject'] = subject
+    msg['From'] = email_config['from']
+    msg['To'] = email_config['to']
+    
+    with smtplib.SMTP(email_config['smtp_server'], email_config['smtp_port']) as server:
+        server.starttls()
+        server.login(email_config['username'], email_config['password'])
+        server.send_message(msg)</code></pre>
+
+        <p>Gmail requires app-specific passwords. Don't use your main password. Generate one at account security settings.</p>
+
+        <h2>Setup Process</h2>
+
+        <p>Install Paramiko:</p>
+
+        <pre><code>pip install paramiko</code></pre>
+
+        <p>Set up SSH key authentication to avoid password prompts:</p>
+
+        <pre><code>ssh-keygen -t ed25519
+ssh-copy-id user@server</code></pre>
+
+        <p>Test the script manually:</p>
+
+        <pre><code>python3 health_checker.py config.json</code></pre>
+
+        <p>Output shows check results:</p>
+
+        <pre><code>=== System Health Check - 2025-10-07 ===
+
+Checking Web Server (192.168.1.100)...
+  ✓ disk: 45%
+  ✓ cpu: 23.5%
+  ✗ memory: 87%
+
+Alert sent to you@domain.com</code></pre>
+
+        <h2>Automation</h2>
+
+        <p>Add to cron for hourly checks:</p>
+
+        <pre><code>crontab -e
+# Add this line:
+0 * * * * /usr/bin/python3 /path/to/health_checker.py /path/to/config.json</code></pre>
+
+        <p>Runs every hour on the hour. Adjust schedule as needed. Every 15 minutes: <code>*/15 * * * *</code>. Twice daily: <code>0 0,12 * * *</code>.</p>
+
+        <h2>What This Is Good For</h2>
+
+        <p>Small deployments with 2-10 servers. Situations where enterprise monitoring tools are overkill or too expensive. Quick visibility into system health without dashboard complexity.</p>
+
+        <h2>What This Isn't</h2>
+
+        <p>Not suitable for large-scale infrastructure. No metrics history. No dashboards. No complex alerting logic. No anomaly detection.</p>
+
+        <p>For production environments with dozens of servers, use Prometheus, Grafana, or similar. This script is for situations where you need basic alerting and don't need the overhead.</p>
+
+        <h2>Security Considerations</h2>
+
+        <p>SSH keys should be passwordless for automation but stored securely. Restrict key permissions to read-only where possible.</p>
+
+        <p>Email credentials in config file are a risk. Consider using environment variables instead or a secrets manager.</p>
+
+        <p>Script runs commands with the privileges of the SSH user. Don't use root. Create a dedicated monitoring user with limited permissions.</p>
+
+        <h2>Extensions</h2>
+
+        <p>Add more checks: failed login attempts, running processes, service status, network connectivity.</p>
+
+        <p>Log results to file for trend analysis. Current implementation only alerts, doesn't store history.</p>
+
+        <p>Integrate with Slack or Discord webhooks instead of email for faster notification.</p>
+
+        <p>Add retry logic for transient connection failures. Current implementation fails immediately on SSH timeout.</p>
+
+        <p>Full code available on request. Modify for your infrastructure.</p>
+    </div>
+    
+    <footer>
+        <p><a href="/">← back to home</a></p>
+    </footer>
+</body>
+</html>
