@@ -56,24 +56,37 @@
             margin: 40px 0;
         }
         
+        .category {
+            margin-bottom: 50px;
+        }
+        
+        .category h2 {
+            color: #ffffff;
+            font-weight: normal;
+            font-size: 1.6em;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #d4c5a0;
+            padding-bottom: 10px;
+        }
+        
         .post-item {
             border-left: 3px solid #d4c5a0;
             padding-left: 15px;
-            margin-bottom: 35px;
+            margin-bottom: 25px;
         }
         
-        .post-item h2 {
+        .post-item h3 {
             font-weight: normal;
             margin-bottom: 8px;
-            font-size: 1.4em;
+            font-size: 1.2em;
         }
         
-        .post-item h2 a {
+        .post-item h3 a {
             color: #d4c5a0;
             text-decoration: none;
         }
         
-        .post-item h2 a:hover {
+        .post-item h3 a:hover {
             text-decoration: underline;
         }
         
@@ -109,34 +122,46 @@
     
     <div class="posts">
         
-        <div class="post-item">
-            <h2><a href="/posts/research-assistant.html">How to Use LLMs for research without losing your brain cells.</a></h2>
-            <p class="date">October 14, 2025</p>
-            <p>Researching about Open-Source with LLMs.</p>
+        <div class="category">
+            <h2>LLMs and AI</h2>
+            <div class="post-item">
+                <h3><a href="/posts/LLMs-and-AI/research-assistant.html">Using LLMs for Research Without Losing Your Brain</a></h3>
+                <p class="date">October 14, 2025</p>
+                <p>Researching open source history with LLMs as research assistants.</p>
+            </div>
         </div>
         
-        <div class="post-item">
-            <h2><a href="/posts/server-health-check.html">Python Health Checker</a></h2>
-            <p class="date">October 7, 2025</p>
-            <p>Server Monitoring Without the Bloat.</p>
+        <div class="category">
+            <h2>Data Analysis</h2>
+            <div class="post-item">
+                <h3><a href="/posts/data-analysis/server-health-check.html">Simple Server Health Monitor</a></h3>
+                <p class="date">October 7, 2025</p>
+                <p>Python script for monitoring server health via SSH.</p>
+            </div>
         </div>
         
-        <div class="post-item">
-            <h2><a href="/posts/data-pipeline-nyse.html">Building a Financial Data Pipeline: NYSE to Power BI</a></h2>
-            <p class="date">October 5, 2025</p>
-            <p>Python, PostgreSQL, and Power BI for market analysis.</p>
+        <div class="category">
+            <h2>Data Engineering</h2>
+            <div class="post-item">
+                <h3><a href="/posts/data-engineering/data-pipeline-nyse.html">Building a Financial Data Pipeline: NYSE to Power BI</a></h3>
+                <p class="date">October 5, 2025</p>
+                <p>Python, PostgreSQL, and Power BI for market analysis.</p>
+            </div>
+            
+            <div class="post-item">
+                <h3><a href="/posts/data-engineering/dbt-to-notion.html">Automating dbt Documentation to Notion</a></h3>
+                <p class="date">October 3, 2025</p>
+                <p>Turning dbt's JSON documentation into something people actually read.</p>
+            </div>
         </div>
         
-        <div class="post-item">
-            <h2><a href="/posts/dbt-to-notion.html">Automating dbt Documentation to Notion</a></h2>
-            <p class="date">October 3, 2025</p>
-            <p>Turning dbt's JSON documentation into something people actually read.</p>
-        </div>
-        
-         <div class="post-item">
-            <h2><a href="/posts/dns-records-github-pages.html">Set Up a Github Page</a></h2>
-            <p class="date">October 2, 2025</p>
-            <p>I walk you through how to set up a dns record on github and more.</p>
+        <div class="category">
+            <h2>How-to Internet</h2>
+            <div class="post-item">
+                <h3><a href="/posts/how-to-internet/dns-records-github-pages.html">DNS Records and Other Things They Don't Teach You</a></h3>
+                <p class="date">October 2, 2025</p>
+                <p>GitHub Pages, A records, and why documentation assumes you already know everything.</p>
+            </div>
         </div>
         
     </div>
