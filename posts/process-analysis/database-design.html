@@ -161,9 +161,7 @@
 
         <p>First normal form requires that a relation has no multivalued attributes and that all rows are unique. A multivalued attribute is one that can have multiple values for a single entity instance. For example, if we tried to store multiple phone numbers in a single Phone_Numbers column, we would violate first normal form. The solution is to either create separate columns for each phone number or, more commonly, create a separate related table for phone numbers.</p>
 
-        <div class="diagram-placeholder">
-            [INSERT DIAGRAM: Example of unnormalized data with repeating groups being converted to 1NF]
-        </div>
+        <img src="/images/unnormalized_to_repeating.png" alt="Shows how repeating groups in the unnormalized table get flattened into separate rows in 1NF, with each product getting its own row." loading="lazy">
 
         <h3>Second Normal Form (2NF)</h3>
 
@@ -171,9 +169,7 @@
 
         <p>Consider a relation ORDER_LINE(Order_Number, Product_ID, Product_Description, Quantity_Ordered). Here, the primary key is the combination of Order_Number and Product_ID. However, Product_Description depends only on Product_ID, not on the full composite key. This creates a partial dependency.</p>
 
-        <div class="diagram-placeholder">
-            [INSERT DIAGRAM: ORDER_LINE table showing partial dependency of Product_Description on Product_ID only]
-        </div>
+        <img src="/images/order_line.png" alt="The diagram shows the ORDER_LINE table with its composite primary key and illustrates how Product_Description only depends on Product_ID rather than the full composite key, creating a partial dependency violation." loading="lazy">
 
         <p>To convert this to second normal form, we decompose the relation using the determinants as primary keys. The determinant is the attribute that determines other attributes. In this case, we create two relations:</p>
 
@@ -188,9 +184,7 @@ PRODUCT(Product_ID, Product_Description)</code></pre>
 
         <p>Consider the relation SALES(Customer_ID, Customer_Name, Salesperson, Region). The primary key is Customer_ID. However, if each salesperson works in only one region, then we have a transitive dependency: Customer_ID → Salesperson → Region.</p>
 
-        <div class="diagram-placeholder">
-            [INSERT DIAGRAM: SALES table showing transitive dependency from Customer_ID to Salesperson to Region]
-        </div>
+        <img src="/images/sales_table.png" alt="Shows the SALES table with the transitive dependency chain where Customer_ID determines Salesperson, which then determines Region, violating 3NF." loading="lazy">
 
         <p>To convert this to third normal form, we split the relation:</p>
 
@@ -207,9 +201,7 @@ SPERSON(Salesperson, Region)</code></pre>
 
         <p>Each regular entity in an E-R diagram becomes a relation. The identifier of the entity type becomes the primary key of the corresponding relation. All attributes of the entity become columns in the table. For example, a CUSTOMER entity with attributes Customer_ID, Name, Address, and Discount becomes the relation CUSTOMER(Customer_ID, Name, Address, Discount).</p>
 
-        <div class="diagram-placeholder">
-            [INSERT DIAGRAM: CUSTOMER entity transforming into CUSTOMER relation]
-        </div>
+        <img src="/images/entity_to_relation.png" alt="Shows the transformation from a CUSTOMER entity to a CUSTOMER relation." loading="lazy">
 
         <h3>Representing Binary 1:N Relationships</h3>
 
