@@ -69,12 +69,14 @@
             font-weight: normal;
             margin: 30px 0 15px 0;
             font-size: 1.4em;
+            color: #ffffff;
         }
-
+        
         .content h3 {
             font-weight: normal;
             margin: 25px 0 12px 0;
             font-size: 1.2em;
+            color: #ffffff;
         }
         
         .content code {
@@ -104,7 +106,7 @@
             width: 100%;
             height: auto;
             margin: 20px 0;
-            border: 1px solid #d4c5a0;
+            border: 3px solid #d4c5a0;
             display: block;
         }
         
@@ -143,7 +145,7 @@
 
         <p>A relation must have entries in cells that are simple, meaning no cell can contain multiple values or nested structures. All entries in a column must come from the same set of values, establishing what's known as a domain for that column. Each row must be unique, which is guaranteed by having a nonempty primary key value. The sequence of columns can be interchanged without changing the meaning of the relation, and rows can be stored in any sequence without affecting the logical structure.</p>
 
-         <img src="/images/customer_table.png" alt="Customr Table." loading="lazy">
+        <img src="/images/customer_table.png" alt="Customer Table." loading="lazy">
 
         <p>The primary key is an attribute or combination of attributes whose value is unique across all occurrences of a relation. This uniqueness is what allows us to identify individual rows and establish relationships between tables. The primary key must satisfy two conditions: it must uniquely identify every row in the relation, and it should be nonredundant, meaning no attribute in the key can be removed without losing the uniqueness property.</p>
 
@@ -151,9 +153,7 @@
 
         <p>Functional dependency is a constraint between two attributes where the value of one attribute determines the value of another attribute. We represent this relationship as A → B, meaning attribute B is functionally dependent on attribute A. For every valid value of A, that value uniquely determines the value of B. Understanding functional dependencies is essential because they form the basis for normalization rules.</p>
 
-        <div class="diagram-placeholder">
-            [INSERT DIAGRAM: Functional dependency diagram showing Employee_ID → Employee_Name, Employee_Address]
-        </div>
+        <img src="/images/functional_diagram.png" alt="Functional Diagram." loading="lazy">
 
         <p>Normalization is the process of converting complex data structures into simple, stable data structures. The goal is to create well-structured relations that contain minimum redundancy and allow users to insert, modify, and delete rows without errors or inconsistencies. Normalization follows a progression through normal forms, each addressing specific types of problems.</p>
 
