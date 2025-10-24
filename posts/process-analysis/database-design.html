@@ -306,9 +306,7 @@ OUTPATIENT(Patient_ID, Date_Treated)</code></pre>
 
         <p>BLOB for binary large objects like images, sound clips, or documents that need to be stored as binary data.</p>
 
-        <div class="diagram-placeholder">
-            [INSERT DIAGRAM: Table showing data type examples with sample values and storage requirements]
-        </div>
+        <img src="/images/data_types.png" alt="Shows Data Types." loading="lazy">
 
         <h3>Calculated Fields</h3>
 
@@ -324,9 +322,7 @@ OUTPATIENT(Patient_ID, Date_Treated)</code></pre>
 
         <p>Referential integrity is a rule stating that each foreign key value must match a primary key value in another relation or be null. This constraint prevents orphaned records where a foreign key references a nonexistent primary key. For example, if we have Customer_ID as a foreign key in the ORDER relation, referential integrity ensures that every Customer_ID in ORDER exists in the CUSTOMER relation.</p>
 
-        <div class="diagram-placeholder">
-            [INSERT DIAGRAM: Two tables showing referential integrity constraint between CUSTOMER and ORDER]
-        </div>
+        <img src="/images/referential_integrity.png" alt="Shows Referential Integrity Relation." loading="lazy">
 
         <p>Null values require explicit handling. A null value is distinct from zero, blank, or any other value. It indicates that the value for the field is missing or unknown. Some fields, particularly primary keys and certain foreign keys, should never be null, while other fields might legitimately be null. The database design must specify which fields allow null values and how nulls should be interpreted.</p>
 
@@ -340,9 +336,7 @@ OUTPATIENT(Patient_ID, Date_Treated)</code></pre>
 
         <p>One common denormalization technique combines two tables with a one-to-one relationship or combines frequently joined tables in one-to-many relationships. For example, if we always retrieve customer data and their account settings together, we might denormalize by combining them into a single table even though they could be normalized as separate entities.</p>
 
-        <div class="diagram-placeholder">
-            [INSERT DIAGRAM: Two normalized tables being combined into one denormalized table]
-        </div>
+        <img src="/images/demoralization.png" alt="Shows denormalization by splitting tables." loading="lazy">
 
         <h3>Denormalization by Splitting Tables</h3>
 
@@ -350,9 +344,7 @@ OUTPATIENT(Patient_ID, Date_Treated)</code></pre>
 
         <p>Horizontal partitioning splits rows across multiple tables. For example, we might split a CUSTOMER table into regional tables based on geography. The normalized model has one CUSTOMER relation, but physically we might implement A_CUSTOMER (Atlantic region), P_CUSTOMER (Pacific region), and S_CUSTOMER (Southern region). This speeds up queries that target specific regions because the database only needs to scan the relevant partition.</p>
 
-        <div class="diagram-placeholder">
-            [INSERT DIAGRAM: Single CUSTOMER table being split into regional tables]
-        </div>
+        <img src="/images/table_partitioning.png" alt="Shows table partitioning splits." loading="lazy">
 
         <p>Vertical partitioning splits columns across multiple tables. If a PRODUCT table has some attributes accessed frequently and others accessed rarely, we might split them. For example, engineering data (Product_ID, Description, Drawing_Number, Weight, Color) might be separated from accounting data (Product_ID, Unit_Cost, Burden_Rate) and marketing data (Product_ID, Description, Color, Price, Product_Manager).</p>
 
@@ -368,9 +360,7 @@ OUTPATIENT(Patient_ID, Date_Treated)</code></pre>
 
         <p>Composite partitioning combines both approaches by first segregating data by ranges and then distributing rows within each range using hashing.</p>
 
-        <div class="diagram-placeholder">
-            [INSERT DIAGRAM: Large table being partitioned into separate physical sections]
-        </div>
+        <img src="/images/physical_partitioning.png" alt="Shows physical partitioning." loading="lazy">
 
         <p>Partitioning improves performance by allowing the database to scan only relevant sections for queries that filter on the partitioning key. It also simplifies maintenance by allowing operations on individual partitions rather than entire tables.</p>
 
