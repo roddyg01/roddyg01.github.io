@@ -212,9 +212,7 @@ SPERSON(Salesperson, Region)</code></pre>
         <pre><code>CUSTOMER(Customer_ID, Name, Address, City_State_ZIP, Discount)
 ORDER(Order_Number, Order_Date, Promised_Date, Customer_ID)</code></pre>
 
-        <div class="diagram-placeholder">
-            [INSERT DIAGRAM: 1:N relationship between CUSTOMER and ORDER entities, showing transformation to relations with foreign key]
-        </div>
+         <img src="/images/relational_model.png" alt="Shows relational model." loading="lazy">
 
         <h3>Representing Binary M:N Relationships</h3>
 
@@ -228,9 +226,7 @@ ORDER_LINE(Order_Number, Product_ID, Quantity_Ordered)</code></pre>
 
         <p>The composite key (Order_Number, Product_ID) uniquely identifies each line item, and Quantity_Ordered is a nonkey attribute describing that specific product on that specific order.</p>
 
-        <div class="diagram-placeholder">
-            [INSERT DIAGRAM: M:N relationship between PRODUCT and ORDER with ORDER_LINE associative entity]
-        </div>
+        <img src="/images/relational_model2.png" alt="Shows relational model." loading="lazy">
 
         <h3>Representing Unary Relationships</h3>
 
@@ -242,9 +238,7 @@ ORDER_LINE(Order_Number, Product_ID, Quantity_Ordered)</code></pre>
 
         <p>The Manager_ID is a recursive foreign key that references Employee_ID values in the same table.</p>
 
-        <div class="diagram-placeholder">
-            [INSERT DIAGRAM: EMPLOYEE entity with recursive "Manages" relationship and corresponding relation]
-        </div>
+        <img src="/images/recursive_relation.png" alt="Shows recursive relational model." loading="lazy">
 
         <p>For unary many-to-many relationships, we create a separate relation with a composite key where both attributes reference the same primary key. For example, a bill-of-materials structure where items contain other items:</p>
 
