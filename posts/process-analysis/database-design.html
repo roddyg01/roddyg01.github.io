@@ -372,9 +372,7 @@ OUTPATIENT(Patient_ID, Date_Treated)</code></pre>
 
         <p>In sequential file organization, rows are stored in sequence according to primary key values. To find a specific row, the database must scan from the beginning of the file until it finds the target row. Sequential organization provides very fast sequential retrieval when processing all rows in key order, but it makes random retrieval of individual rows impractical. Adding, deleting, or updating rows often requires rewriting the entire file.</p>
 
-        <div class="diagram-placeholder">
-            [INSERT DIAGRAM: Sequential file showing rows stored in primary key order]
-        </div>
+        <img src="/images/sequential.png" alt="Sequential file with records physically stored in primary key order, with arrows indicating the sorted sequence and boxes explaining the characteristics, advantages, and disadvantages of this organization method." loading="lazy">
 
         <h3>Indexed File Organization</h3>
 
@@ -382,9 +380,7 @@ OUTPATIENT(Patient_ID, Date_Treated)</code></pre>
 
         <p>Indexed organization supports both sequential retrieval (by scanning through the index in order) and random retrieval (by searching the index for specific values). The main disadvantage is the extra storage space required for indexes and the extra time to maintain indexes when data changes.</p>
 
-        <div class="diagram-placeholder">
-            [INSERT DIAGRAM: Indexed file showing index table with pointers to data rows]
-        </div>
+        <img src="/images/indexed_file.png" alt="Shows index table with sorted keys and memory pointers, with arrows pointing to the corresponding data records in the data file, demonstrating how indexed file organization enables fast random access." loading="lazy">
 
         <p>Indexes can be created on any field, not just primary keys. A secondary key is an attribute or combination of attributes for which more than one row may have the same value. Secondary key indexes allow fast retrieval based on non-unique values. For example, an index on Customer_Name allows fast retrieval of all customers with a particular name, even though names aren't unique.</p>
 
@@ -392,17 +388,13 @@ OUTPATIENT(Patient_ID, Date_Treated)</code></pre>
 
         <p>Hashed file organization uses an algorithm to compute the storage address for each row from the primary key value. When inserting a row, the algorithm transforms the key value into a storage address. When retrieving a row, the same algorithm computes where the row should be located. This provides very fast random retrieval but makes sequential retrieval impractical because rows aren't stored in key order.</p>
 
-        <div class="diagram-placeholder">
-            [INSERT DIAGRAM: Hashed file showing algorithm transforming keys into storage addresses]
-        </div>
+        <img src="/images/hash_function.png" alt="Shows input keys flowing through a hash function." loading="lazy">
 
         <h3>Comparing File Organizations</h3>
 
         <p>Each file organization optimizes different operations. Sequential organization is best for processing all rows in order but poor for random access. Indexed organization handles both sequential and random access moderately well and supports multiple key retrieval through multiple indexes. Hashed organization provides the fastest random access but doesn't support sequential retrieval or multiple key access.</p>
 
-        <div class="diagram-placeholder">
-            [INSERT DIAGRAM: Comparison table showing performance characteristics of different file organizations]
-        </div>
+        <img src="/images/file_organization.png" alt="Shows horizontal comparison table showing performance characteristics of different file organizations." loading="lazy">
 
         <h2>Designing Indexes</h2>
 
@@ -420,9 +412,7 @@ OUTPATIENT(Patient_ID, Date_Treated)</code></pre>
 
         <p>Security controls restrict access to authorized users and limit what they can do. Encryption protects data by encoding it so that it's unreadable without the decryption key. User authentication requires users to identify themselves through usernames and passwords or other credentials. Authorization controls specify what operations each user can perform on which data. Many systems force users to work with views or copies of data rather than directly manipulating the actual tables, providing an additional layer of protection.</p>
 
-        <div class="diagram-placeholder">
-            [INSERT DIAGRAM: Security layers showing authentication, authorization, and encryption protecting database]
-        </div>
+        <img src="/images/security_layers.png" alt="Shows user requests flowing through three security layers (authentication, authorization, and encryption) before reaching the protected database, with examples for each layer." loading="lazy">
 
         <h2>Conclusion</h2>
 
