@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Log Analysis in a Nutshell: What I Learned | cyberoddy</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            background: #1a1a1a;
+            color: #d4c5a0;
+            font-family: Helvetica, Arial, sans-serif;
+            line-height: 1.6;
+            padding: 20px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        header {
+            border-bottom: 2px solid #d4c5a0;
+            padding-bottom: 20px;
+            margin-bottom: 40px;
+        }
+        
+        h1 {
+            font-size: 2em;
+            font-weight: normal;
+            margin-bottom: 10px;
+        }
+        
+        .meta {
+            opacity: 0.7;
+            font-size: 0.95em;
+        }
+        
+        nav {
+            margin: 30px 0;
+        }
+        
+        nav a {
+            color: #d4c5a0;
+            text-decoration: none;
+            margin-right: 20px;
+            border: 1px solid #d4c5a0;
+            padding: 5px 15px;
+            display: inline-block;
+            transition: all 0.2s;
+        }
+        
+        nav a:hover {
+            background: #d4c5a0;
+            color: #1a1a1a;
+        }
+        
+        .content {
+            margin: 40px 0;
+        }
+        
+        .content p {
+            margin-bottom: 20px;
+        }
+        
+        .content h2 {
+            font-weight: normal;
+            margin: 30px 0 15px 0;
+            font-size: 1.4em;
+        }
+        
+        .content code {
+            background: #0a0a0a;
+            color: #ffffff;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+        }
+        
+        .content pre {
+            background: #0a0a0a;
+            padding: 15px;
+            overflow-x: auto;
+            margin: 20px 0;
+            border-left: 3px solid #d4c5a0;
+        }
+        
+        .content pre code {
+            background: none;
+            color: #ffffff;
+            padding: 0;
+        }
+        
+        a {
+            color: #d4c5a0;
+            text-decoration: underline;
+        }
+        
+        footer {
+            margin-top: 60px;
+            padding-top: 20px;
+            border-top: 1px solid #d4c5a0;
+            opacity: 0.6;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Log Analysis in a Nutshell: What I Learned</h1>
+        <p class="meta">November 3, 2025</p>
+    </header>
+    
+    <nav>
+        <a href="/">home</a>
+        <a href="/posts">posts</a>
+        <a href="/about.html">about</a>
+        <a href="https://github.com/roddyg01">github</a>
+    </nav>
+
+    <div class="content">
+        <p>Spent the last few weeks learning log analysis for cybersecurity. Turns out reading logs is way more useful than I expected. This is what I figured out.</p>
+
+        <h2>What logs are</h2>
+
+        <p>Logs are timestamped records of events in a system. Web servers log requests, apps log errors, firewalls log blocked connections. These pile up in text files somewhere on a system. Format varies but most have a timestamp, source, severity level, and message about what happened.</p>
+
+        <h2>Why this?</h2>
+
+        <p>When something breaks you need to know what happened. Logs show you. Logs tell you what a server was doing before it died, where and how an actor gained access to a system, or broke something, they reveal which queries are taking forever when an app crashes.</p>
+
+        <p>With logs you have actual evidence of what went wrong and when, and without it you are essentially guessing. It just makes things easier.</p>
+
+        <h2>Types of logs</h2>
+
+        <p>System logs track OS events like service starts and user logins. On Linux they're in /var/log/syslog or /var/log/messages. Windows has Event Viewer.</p>
+
+        <p>Application logs show what apps are doing. Web servers log HTTP requests, databases log queries, custom apps log whatever the devs thought to include.</p>
+
+        <p>Security logs track auth attempts, privilege changes, policy violations. Failed SSH logins and sudo commands show up here.</p>
+
+        <p>Network logs come from firewalls and routers. Connection attempts, blocked traffic, detected threats.</p>
+
+        <h2>Basic analysis</h2>
+
+        <p>Grep is how you search logs. Looking for failed logins means grep for "Failed password" in auth logs. Looking for errors means grep for "error" in app logs.</p>
+
+        <pre><code>grep "Failed password" /var/log/auth.log
+grep -i "error" /var/log/apache2/error.log</code></pre>
+
+        <p>Count occurrences to find patterns. 1000 failed logins from one IP = brute force attack. 50 DB timeouts in an hour = performance problem.</p>
+
+        <pre><code>grep "Failed password" /var/log/auth.log | wc -l</code></pre>
+
+        <p>Filter by time when investigating specific incidents. Problem at 2:30pm? Check logs from 2:25 to 2:35. Use awk or sed to extract timestamps and filter date ranges.</p>
+
+        <h2>Tools</h2>
+
+        <p>For local stuff grep, awk, sed, cut handle most tasks. Fast and work everywhere.</p>
+
+        <p>For multiple systems use centralized logging. ELK Stack (Elasticsearch, Logstash, Kibana), Splunk, or Graylog collect logs from all your servers into one searchable place. Beats SSHing into 50 boxes to grep 50 different files.</p>
+
+        <p>SIEM systems like Splunk ES or QRadar add correlation and alerting on top. They flag suspicious patterns automatically like privilege escalation followed by data exfiltration.</p>
+
+        <h2>What to look for</h2>
+
+        <p>Repeated errors aren't random. If the same error shows up constantly something's misconfigured or broken.</p>
+
+        <p>Time patterns show usage peaks, scheduled jobs, attack windows. Traffic spikes at 9am when people log in. Backups run at 2am. Scanners probe at 3am.</p>
+
+        <p>Anomalies stick out. One failed login is normal, 100 isn't. One user downloading 10GB at midnight is suspicious.</p>
+
+        <p>Correlate across log sources. Failed DB connection in app logs matches "too many connections" in DB logs. Outbound traffic spike matches new process in system logs.</p>
+
+        <h2>Common issues</h2>
+
+        <p>Logs fill disks fast. Set up log rotation or you'll run out of space. Logrotate on Linux compresses old logs and deletes ancient ones automatically.</p>
+
+        <p>Too little logging = no troubleshooting data. Too much = noise. Find the right balance.</p>
+
+        <p>Time sync matters. Servers in different timezones with different clocks make correlation impossible. Run NTP.</p>
+
+        <p>Attackers delete logs. Use remote logging and write-once storage to prevent tampering.</p>
+
+        <h2>My workflow</h2>
+
+        <p>Start with what broke, when, and which systems. Identify relevant log files. Filter by time window around the incident. Search for keywords related to the problem. Follow the chain of events to find root cause. Document it so you remember next time.</p>
+
+        <h2>Example</h2>
+
+        <p>Web app returns 502 errors, users can't log in. Web server logs show timeouts connecting to app server. App logs show "DB connection pool exhausted". DB logs show 150 active connections at max capacity. Problem is too many connections. Solution is increase max connections or fix why the app isn't releasing them.</p>
+
+        <p>Without logs this is just "website down" with no clear fix.</p>
+
+        <h2>What I got from this</h2>
+
+        <p>Log analysis is reading evidence to understand system behavior. It's the difference between guessing and knowing. If you learn grep and regex, youll be in good standing. Understand log formats for systems you work with. Keep clocks synced. If you're not checking logs you don't know what your systems are actually doing.</p>
+    </div>
+
+    <footer>
+        <p><a href="/">← back to home</a></p>
+    </footer>
+</body>
+</html>
