@@ -102,6 +102,27 @@
             opacity: 0.9;
             margin: 30px 0;
         }
+
+        .projects {
+            margin-top: 40px;
+        }
+
+        .project-item {
+            border-left: 3px solid #f5f5dc;
+            padding-left: 15px;
+            margin-bottom: 25px;
+        }
+
+        .project-item h3 {
+            font-weight: normal;
+            margin-bottom: 5px;
+        }
+
+        .project-item .tags {
+            opacity: 0.6;
+            font-size: 0.9em;
+            margin-bottom: 5px;
+        }
     </style>
 </head>
 <body>
@@ -113,6 +134,7 @@
     <nav>
         <a href="/">home</a>
         <a href="/posts">posts</a>
+        <a href="#projects">projects</a>
         <a href="/about">about</a>
         <a href="https://github.com/roddyg01">github</a>
     </nav>
@@ -147,6 +169,22 @@
     
     </div>
     
+    <div class="projects" id="projects">
+        <h2>Projects</h2>
+
+        <div class="project-item">
+            <h3><a href="https://github.com/roddyg01">SOC Automation Lab</a></h3>
+            <p class="tags">threat-intel · python · automation</p>
+            <p>Built automated SOC infrastructure using MISP, Wazuh, and n8n for threat detection.</p>
+        </div>
+
+        <div class="project-item">
+            <h3><a href="https://github.com/roddyg01">cyberoddy.com</a></h3>
+            <p class="tags">html · writing</p>
+            <p>Personal site documenting cybersecurity learning, built with plain HTML.</p>
+        </div>
+    </div>
+
     <footer>
         <p>built with html because jekyll felt like overkill | no analytics, no cookies, no bs</p>
     </footer>
