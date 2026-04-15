@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Projects | cyberoddy</title>
+    <title>CTI Translator | cyberoddy</title>
     <style>
         * {
             margin: 0;
@@ -28,9 +28,14 @@
         }
 
         h1 {
-            font-size: 2.5em;
+            font-size: 2em;
             font-weight: normal;
             margin-bottom: 10px;
+        }
+
+        .meta {
+            opacity: 0.7;
+            font-size: 0.95em;
         }
 
         nav {
@@ -52,49 +57,17 @@
             color: #1a1a1a;
         }
 
-        a {
-            color: #d4c5a0;
-            text-decoration: underline;
-        }
-
-        .projects {
+        .content {
             margin: 40px 0;
         }
 
-        .projects p.intro {
-            margin-bottom: 35px;
-            opacity: 0.9;
+        .content p {
+            margin-bottom: 20px;
         }
 
-        .project-item {
-            border-left: 3px solid #c8a97a;
-            padding-left: 15px;
-            margin-bottom: 35px;
-        }
-
-        .project-item h2 {
-            font-weight: normal;
-            font-size: 1.3em;
-            margin-bottom: 6px;
-        }
-
-        .project-item h2 a {
+        a {
             color: #d4c5a0;
-            text-decoration: none;
-        }
-
-        .project-item h2 a:hover {
             text-decoration: underline;
-        }
-
-        .project-item .tags {
-            color: #b8956a;
-            font-size: 0.88em;
-            margin-bottom: 8px;
-        }
-
-        .project-item p {
-            opacity: 0.9;
         }
 
         footer {
@@ -107,7 +80,8 @@
 </head>
 <body>
     <header>
-        <h1>Projects</h1>
+        <h1>CTI Translator</h1>
+        <p class="meta">threat-intel · python · ai</p>
     </header>
 
     <nav>
@@ -118,28 +92,20 @@
         <a href="https://github.com/roddyg01">github</a>
     </nav>
 
-    <section class="projects">
+    <div class="content">
 
-        <p class="intro">Things I've built. Source on GitHub.</p>
+        <p>Threat intel reports are documents. They describe adversary activity in prose: groups, techniques, infrastructure, campaigns. Getting any of it into your tools requires reading it, extracting the relevant fields, and formatting them correctly. That is analyst time spent doing data entry.</p>
 
-        <div class="project-item">
-            <h2><a href="https://github.com/roddyg01/public-projects">SOC Automation Lab</a></h2>
-            <p class="tags">threat-intel · python · automation</p>
-            <p>Built automated SOC infrastructure using MISP, Wazuh, and n8n for threat detection.</p>
-        </div>
+        <p>CTI Translator sends a raw report to Claude via the Anthropic API. It comes back as a structured package: threat actors, TTPs mapped to ATT&CK, IOCs, campaign context. Something your SIEM or TIP can actually consume instead of a PDF sitting in a folder.</p>
 
-        <div class="project-item">
-            <h2><a href="/posts/Cybersecurity/cti-translator.html">CTI Translator</a></h2>
-            <p class="tags">threat-intel · python · ai</p>
-            <p>Converts raw threat intel reports into structured intelligence packages using the Anthropic API.</p>
-        </div>
+        <p>It is a Python script. Point it at a report, get back structured intelligence. If you are still copy-pasting threat data into spreadsheets, here is the fix.</p>
 
-        <!-- PROJECT: add next project here -->
+        <p>Code: <a href="https://github.com/roddyg01/public-projects/tree/main/cti-translator">github.com/roddyg01/public-projects/tree/main/cti-translator</a></p>
 
-    </section>
+    </div>
 
     <footer>
-        <p><a href="/">← back to home</a></p>
+        <p><a href="/projects">← back to projects</a></p>
     </footer>
 </body>
 </html>
