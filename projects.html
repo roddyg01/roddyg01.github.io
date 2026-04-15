@@ -3,14 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>About | cyberoddy</title>
+    <title>Projects | cyberoddy</title>
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
-        
+
         body {
             background: #1a1a1a;
             color: #d4c5a0;
@@ -20,23 +20,23 @@
             max-width: 800px;
             margin: 0 auto;
         }
-        
+
         header {
             border-bottom: 2px solid #d4c5a0;
             padding-bottom: 20px;
             margin-bottom: 40px;
         }
-        
+
         h1 {
             font-size: 2.5em;
             font-weight: normal;
             margin-bottom: 10px;
         }
-        
+
         nav {
             margin: 30px 0;
         }
-        
+
         nav a {
             color: #d4c5a0;
             text-decoration: none;
@@ -46,31 +46,57 @@
             display: inline-block;
             transition: all 0.2s;
         }
-        
+
         nav a:hover {
             background: #d4c5a0;
             color: #1a1a1a;
         }
-        
-        .content {
-            margin: 40px 0;
-        }
-        
-        .content p {
-            margin-bottom: 20px;
-        }
-        
-        .content h2 {
-            font-weight: normal;
-            margin: 30px 0 15px 0;
-            font-size: 1.4em;
-        }
-        
+
         a {
             color: #d4c5a0;
             text-decoration: underline;
         }
-        
+
+        .projects {
+            margin: 40px 0;
+        }
+
+        .projects p.intro {
+            margin-bottom: 35px;
+            opacity: 0.9;
+        }
+
+        .project-item {
+            border-left: 3px solid #c8a97a;
+            padding-left: 15px;
+            margin-bottom: 35px;
+        }
+
+        .project-item h2 {
+            font-weight: normal;
+            font-size: 1.3em;
+            margin-bottom: 6px;
+        }
+
+        .project-item h2 a {
+            color: #d4c5a0;
+            text-decoration: none;
+        }
+
+        .project-item h2 a:hover {
+            text-decoration: underline;
+        }
+
+        .project-item .tags {
+            color: #b8956a;
+            font-size: 0.88em;
+            margin-bottom: 8px;
+        }
+
+        .project-item p {
+            opacity: 0.9;
+        }
+
         footer {
             margin-top: 60px;
             padding-top: 20px;
@@ -81,33 +107,39 @@
 </head>
 <body>
     <header>
-        <h1>About</h1>
+        <h1>Projects</h1>
     </header>
-    
+
     <nav>
         <a href="/">home</a>
         <a href="/posts">posts</a>
         <a href="/projects">projects</a>
-        <a href="/about.html">about</a>
+        <a href="/about">about</a>
         <a href="https://github.com/roddyg01">github</a>
     </nav>
-    
-    <div class="content">
-        <div class="content">
-            
-            <p>Hello, my name is Rodrigo and this is my website. I'm building this site because I wanted a place to showcase my projects and document what I'm learning. I work in data and cybersecurity (specifically specialized in threat intel), but am passionate about all things tech.</p>
-        
-            <p>Outside of tech, I train Muay Thai, am interested in geopolitics, and work on being competent at everything I learn.</p>
-        
-            <p>This project is to show my processes and learnings in a clear, documented and helpful way. Feel free to follow my github and contact me.</p>
 
-<h2>Contact</h2>
-    
-    <p>GitHub: <a href="https://github.com/roddyg01">roddyg01</a></p>
-</div>
-    
-<footer>
-    <p><a href="/">← back to home</a></p>
-</footer>
+    <section class="projects">
+
+        <p class="intro">Things I've built. Source on GitHub.</p>
+
+        <div class="project-item">
+            <h2><a href="https://github.com/roddyg01/public-projects">SOC Automation Lab</a></h2>
+            <p class="tags">threat-intel · python · automation</p>
+            <p>Built automated SOC infrastructure using MISP, Wazuh, and n8n for threat detection.</p>
+        </div>
+
+        <div class="project-item">
+            <h2><a href="https://github.com/roddyg01/public-projects/cti-translator">CTI Translator</a></h2>
+            <p class="tags">threat-intel · python · ai</p>
+            <p>Converts raw threat intel reports into structured intelligence packages using the Anthropic API.</p>
+        </div>
+
+        <!-- PROJECT: add next project here -->
+
+    </section>
+
+    <footer>
+        <p><a href="/">← back to home</a></p>
+    </footer>
 </body>
 </html>
