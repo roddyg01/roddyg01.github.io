@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OSINT 101 | cyberoddy</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #1a1a1a;
+            color: #d4c5a0;
+            font-family: Helvetica, Arial, sans-serif;
+            line-height: 1.6;
+            padding: 20px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        header {
+            border-bottom: 2px solid #d4c5a0;
+            padding-bottom: 20px;
+            margin-bottom: 40px;
+        }
+
+        h1 {
+            font-size: 2em;
+            font-weight: normal;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            font-size: 1.1em;
+            margin-bottom: 15px;
+            opacity: 0.85;
+        }
+
+        .meta {
+            opacity: 0.7;
+            font-size: 0.95em;
+        }
+
+        nav {
+            margin: 30px 0;
+        }
+
+        nav a {
+            color: #d4c5a0;
+            text-decoration: none;
+            margin-right: 20px;
+            border: 1px solid #d4c5a0;
+            padding: 5px 15px;
+            display: inline-block;
+            transition: all 0.2s;
+        }
+
+        nav a:hover {
+            background: #d4c5a0;
+            color: #1a1a1a;
+        }
+
+        .content {
+            margin: 40px 0;
+        }
+
+        .content p {
+            margin-bottom: 20px;
+        }
+
+        .content h2 {
+            font-weight: normal;
+            margin: 40px 0 15px 0;
+            font-size: 1.4em;
+            color: #ffffff;
+        }
+
+        .content code {
+            background: #0a0a0a;
+            color: #ffffff;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+        }
+
+        a {
+            color: #d4c5a0;
+            text-decoration: underline;
+        }
+
+        footer {
+            margin-top: 60px;
+            padding-top: 20px;
+            border-top: 1px solid #d4c5a0;
+            opacity: 0.6;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>OSINT 101</h1>
+        <p class="subtitle">Data and intelligence are not the same thing.</p>
+        <p class="meta">April 15, 2026</p>
+    </header>
+
+    <nav>
+        <a href="/">home</a>
+        <a href="/posts">posts</a>
+        <a href="/projects">projects</a>
+        <a href="/about.html">about</a>
+        <a href="https://github.com/roddyg01">github</a>
+    </nav>
+
+    <article class="content">
+
+        <p>Maltego is a tool. Shodan is a tool. A Google search is a tool. OSINT, on the other hand, is what you do with them. You will create the structured collection and analysis of publicly available information to answer a specific question. Three parts to that definition. "Publicly available" means no unauthorized access, no exploitation. "Collecting and analyzing" means there is a workflow, not a button you click. "Specific question" means you need to know what you are looking for before you start. Most people skip that last part. They spend hours poking around the internet and produce a pile of data with no clear answer attached to it. Data and intelligence are not the same thing.</p>
+
+        <p>I'll write more about those tools I meantioned specifically do in other posts. But the point here is that people conflate the tools with the process and end up doing one without the other. You can run Maltego for three hours and produce nothing useful. You can also find critical threat actor infrastructure with a single well-constructed Shodan query and a passive DNS lookup, but the tool is not the skill, the process is. However, by this point, I think you're already aware of that. This blog explains OSINT to the core, and how you can use it for investigations.</p>
+
+        <p>Now... intelligence starts with a requirement.</p>
+
+        <h2>Where It Fits in CTI</h2>
+
+        <p>The CTI cycle runs like this: direction, collection, processing, analysis, dissemination, feedback. OSINT lives in the collection phase. One method among several: internal telemetry, human sources, commercial feeds, technical sensors, and open sources. OSINT covers that last category.</p>
+
+        <p>What makes OSINT useful is accessibility. No budget required to query Shodan or pull certificate data (unless you want to maximize the tool, but then we're talking pricing plans, which begs the question: is it really OSINT if you have to pay for it? So lets just stick to whats available freely to us.)</p>
+
+        <p>What makes it a trap is that same accessibility. When something is free and easy, analysts lean on it too hard and skip everything else. An OSINT-only collection strategy has blind spots, and its important to know what those are.</p>
+
+        <p>In practice, OSINT feeds threat actor profiling -- infrastructure patterns, tooling, aliases across forums, campaign timelines. It also feeds incident response. When an alert fires on an IP or domain and you need context in ten minutes, open sources are where you look first. Fast and free. Not always right, but definitely fast.</p>
+
+        <h2>The Sources You Should Consider</h2>
+
+        <p>Six sources cover the majority of real use cases. Everything else in the OSINT tool ecosystem is usually a wrapper around one of them.</p>
+
+        <p>Shodan indexes internet-facing services. Open ports, banners, certificates, software versions, default credentials left exposed. Use it when you have an IP and want to know what is running on it, or when you want to find infrastructure matching a specific fingerprint. A C2 server running Cobalt Strike leaves a detectable banner. Shodan finds it (I'll cover Shodan in depth in a separate post.)</p>
+
+        <p>Passive DNS shows resolution history. What else has this IP hosted? What else has this domain resolved to? Infrastructure gets reused. A threat actor's C2 domain from six months ago might share an IP with their current phishing domain. Passive DNS is how you find that connection. VirusTotal has a decent dataset. SecurityTrails is better.</p>
+
+        <p>Certificate Transparency logs every TLS certificate issued by a public CA. Query what certificates have been issued for any domain or subdomain -- including ones never meant to be found. Check out crt.sh, it is free and covers most logs. You can use it to find subdomains, map infrastructure, and track registration patterns across time.</p>
+
+        <p>WHOIS history is a good one for historical data. Current WHOIS data is mostly useless because of GDPR scrubbing and privacy services. Historical WHOIS is still useful. It shows registrant details from before privacy services were universal. A lot of times, you'll find email addresses used to register domains in 2019 with this. DomainTools is the standard here, though not free.</p>
+
+        <p>Google dorking. Advanced search operators, for example..</p>
+
+        <p><code>--------- site:, filetype:, inurl:, intitle:. ---------</code></p>
+
+        <p>A search for filetype:sql site:pastebin.com finds database dumps. A search for inurl:wp-content/uploads filetype:pdf confidential finds documents that were never supposed to be public. Just learning the operators and knowing when to use them will be useful for quick OSINT searches.</p>
+
+        <p>Social media and forums are great. This is why you should avoid using social media for personal use, or at least minimize your online presence. You could use linkedIn for corporate targeting and personnel tracking. Twitter (or X) for real-time threat actor activity and researcher disclosures. Telegram for criminal marketplace activity and initial access broker postings. Reddit for credential dumps and leaked data discussions. The skill is knowing which platform to check for which question.</p>
+
+        <h2>What OSINT Cannot Tell You</h2>
+
+        <p>OSINT cannot tell you who is behind the keyboard.</p>
+
+        <p>An analyst finds an IP, correlates it to a domain registration email, connects that to a Telegram handle. They think they have attribution. What they have is correlation. Correlation shows things are related. It does not tell you why, or whether the relationship means what you think it does.</p>
+
+        <p>Infrastructure gets shared, sold, rented, and reused across dozens of different actors. Two campaigns with overlapping infrastructure might be the same group. Or they both use the same bulletproof hosting provider. Oftentimes, sophisticated actors plant false flags deliberately -- using infrastructure previously linked to other groups, registering domains with stolen identities. Every confident attribution in a published threat report is a judgment call made with incomplete information. Sometimes right, but often not.</p>
+
+        <p>Lets think of separate observations from conclusions. An observation could be "This domain shares an IP with infrastructure used in a Lazarus Group campaign from Q3 2023". "This is Lazarus Group" requires a lot more than IP overlap. But, if we skip that distinction, we can lose credibility fast.</p>
+
+        <h2>Operational Security While Doing OSINT</h2>
+
+        <p>I've seen very few beginner content covering this, and it is the part that can burn an entire investigation.</p>
+
+        <p>If a threat actor controls a piece of infrastructure, they can log who visits it. Hitting a C2 server's IP directly from a corporate analyst workstation tells the operator someone is paying attention to it. Visiting a phishing page from a personal browser does the same. In this case, the infrastructure owners see traffic, such as a user-agent, IP, geolocation or the timing of requests.</p>
+
+        <p>Now, a burned investigation means the actor knows they are being watched. They rotate infrastructure, delete accounts and go quiet. The basic discipline: never touch threat actor infrastructure directly from an identifiable host. Use a dedicated analysis environment. Route through a residential proxy or a VPN endpoint that would not flag as an analyst. Use a hardened browser profile with a generic user-agent. Do not authenticate to any service you also use personally.</p>
+
+        <p>Passive sources carry lower risk. Shodan queries, for example run against their index, not the target. Passive DNS is a lookup against a third-party database. Certificate Transparency queries do not touch the target at all. So, the moment you make a direct request to something the actor controls, you are no longer invisible.</p>
+
+        <p>Rule of thumb: passive collection first, then direct queries last. Before making any request, ask whether the target can see it.</p>
+
+        <h2>Start Here</h2>
+
+        <p>Pick a recent phishing domain from any public threat report. Run it through passive DNS and certificate transparency. Check the registrant IP in Shodan. See what else that IP hosts. Check related domains in VirusTotal.</p>
+
+        <p>With this, the pieces will start connecting, and thats the whole point of OSINT.</p>
+
+    </article>
+
+    <footer>
+        <p><a href="/">← back to home</a></p>
+    </footer>
+</body>
+</html>
